@@ -1,8 +1,8 @@
 # BYO - Build Your Own SaaS Boilerplate
 
-A modern, production-ready SaaS starter template built with Vite, React 19, TypeScript, Supabase, and ShadCN UI.
+A modern, production-ready SaaS starter template built with Vite, React 18, TypeScript, Supabase, and ShadCN UI.
 
-**Status:** 🚧 In Development (MVP Phase)
+**Status:** ✅ MVP Complete - Ready for Deployment
 
 ---
 
@@ -12,10 +12,11 @@ BYO (Build Your Own) is a **DRY-first boilerplate** for building SaaS applicatio
 
 ### ✨ Key Features
 
-- ✅ **Modern Stack** - Vite + React 19 + TypeScript
+- ✅ **Modern Stack** - Vite + React 18 + TypeScript
 - ✅ **Full Auth** - Supabase Auth (email, magic links, OAuth)
 - ✅ **4-Tier RBAC** - Admin, Moderator, User, Guest roles
 - ✅ **ShadCN UI** - Beautiful, accessible components with official blocks
+- ✅ **Demo Mode** - Run without Supabase for testing/previews
 - ✅ **TDD-Ready** - Vitest 4.0 + Playwright setup with example tests
 - ✅ **CI/CD** - GitHub Actions + Vercel deployment
 - ✅ **Documentation as Code** - Comprehensive docs in `/docs`
@@ -26,13 +27,37 @@ BYO (Build Your Own) is a **DRY-first boilerplate** for building SaaS applicatio
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: Demo Mode (No Supabase Required)
 
+Perfect for testing, previews, or exploring the boilerplate:
+
+```bash
+# Clone the repository
+git clone [your-repo-url] byo
+cd byo
+
+# Install dependencies
+npm install
+
+# Use demo mode (no Supabase needed)
+cp .env.demo .env.local
+
+# Start development server
+npm run dev
+```
+
+Visit `http://localhost:5173` and login with:
+- **Email**: `demo@example.com`
+- **Password**: (any password)
+
+### Option 2: Full Setup (with Supabase)
+
+For production development:
+
+**Prerequisites:**
 - Node.js 18+
 - npm or yarn
 - Supabase account (free tier works)
-
-### Installation
 
 ```bash
 # Clone the repository
@@ -46,14 +71,11 @@ npm install
 cp .env.example .env.local
 # Edit .env.local with your Supabase credentials
 
-# Start Supabase locally (optional)
-npx supabase start
-
 # Start development server
 npm run dev
 ```
 
-Visit `http://localhost:5173` to see your app!
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete Supabase setup instructions.
 
 ---
 
@@ -64,6 +86,7 @@ Visit `http://localhost:5173` to see your app!
 - **[Implementation Plan](/docs/implementation-plan.md)** - Full 10-phase implementation roadmap
 - **[Setup Guide](/docs/setup.md)** - Detailed development environment setup
 - **[Architecture](/docs/architecture.md)** - System design and architectural decisions
+- **[Vercel Deployment Guide](VERCEL.md)** - Fix deployment issues & enable demo mode
 - **[Claude Context](/docs/claude.md)** - AI assistant guide for this project
 
 **Dive deeper:**
@@ -72,7 +95,7 @@ Visit `http://localhost:5173` to see your app!
 - [RBAC System](/docs/rbac.md) - Role-based access control explained
 - [Database Schema](/docs/specs/database-schema.md) - Complete database structure
 - [Testing Strategy](/docs/testing.md) - Unit and E2E testing guide
-- [Deployment](/docs/deployment.md) - Deploy to Vercel
+- [Deployment](/docs/deployment.md) - Complete Vercel & Supabase deployment
 
 ---
 
@@ -80,7 +103,7 @@ Visit `http://localhost:5173` to see your app!
 
 ### Core
 - **[Vite](https://vitejs.dev/)** - Lightning-fast build tool
-- **[React 19](https://react.dev/)** - UI library
+- **[React 18](https://react.dev/)** - UI library
 - **[TypeScript](https://www.typescriptlang.org/)** - Type safety
 - **[React Router](https://reactrouter.com/)** - Client-side routing
 
@@ -273,18 +296,26 @@ Built with amazing open-source tools:
 
 ## 🗺 Roadmap
 
-Current focus: **MVP features**
+**MVP Status: ✅ Complete!**
 
 - [x] Project structure and documentation
-- [ ] Vite + React + TypeScript setup
-- [ ] TailwindCSS + ShadCN UI integration
-- [ ] Supabase database schema + RLS
-- [ ] Authentication flow
-- [ ] RBAC system
-- [ ] Core pages (landing, dashboard, account, settings)
-- [ ] Testing setup
-- [ ] CI/CD pipelines
-- [ ] Deployment to Vercel
+- [x] Vite + React + TypeScript setup
+- [x] TailwindCSS + ShadCN UI integration
+- [x] Supabase database schema + RLS
+- [x] Authentication flow
+- [x] RBAC system
+- [x] Core pages (landing, dashboard, account, settings)
+- [x] Testing setup (Vitest + Playwright)
+- [x] CI/CD pipelines (GitHub Actions)
+- [x] Demo mode (no Supabase required)
+- [x] Deployment to Vercel
+
+**Next Phase: Enhancements**
+- [ ] Supabase anonymous/guest auth integration
+- [ ] Payment processing (Stripe)
+- [ ] Email notifications
+- [ ] Admin dashboard
+- [ ] Advanced RBAC features
 
 See [Implementation Plan](/docs/implementation-plan.md) for detailed roadmap.
 
