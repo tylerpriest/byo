@@ -13,14 +13,14 @@ BYO (Build Your Own) is a **DRY-first boilerplate** for building SaaS applicatio
 ### ✨ Key Features
 
 - ✅ **Modern Stack** - Vite + React 18 + TypeScript
-- ✅ **Full Auth** - Supabase Auth (email, magic links, OAuth)
-- ✅ **4-Tier RBAC** - Admin, Moderator, User, Guest roles
+- ✅ **Email/Password Auth** - Supabase Auth with password reset
+- ✅ **4-Tier RBAC** - Admin, Moderator, User, Guest roles with database-level RLS
 - ✅ **ShadCN UI** - Beautiful, accessible components with official blocks
-- ✅ **Demo Mode** - Run without Supabase for testing/previews
+- ✅ **Demo Mode** - Run without Supabase for testing/previews (auto-fallback)
 - ✅ **TDD-Ready** - Vitest 4.0 + Playwright setup with example tests
 - ✅ **CI/CD** - GitHub Actions + Vercel deployment
 - ✅ **Documentation as Code** - Comprehensive docs in `/docs`
-- ✅ **Optimistic UI** - Graceful error handling and loading states
+- ✅ **Error Boundaries** - Graceful error handling and loading states
 - ✅ **Mobile-Responsive** - Collapsible sidebar, mobile-first design
 
 ---
@@ -300,22 +300,42 @@ Built with amazing open-source tools:
 
 - [x] Project structure and documentation
 - [x] Vite + React + TypeScript setup
-- [x] TailwindCSS + ShadCN UI integration
-- [x] Supabase database schema + RLS
-- [x] Authentication flow
-- [x] RBAC system
+- [x] TailwindCSS + ShadCN UI integration (10+ components)
+- [x] Supabase database schema + RLS policies
+- [x] Email/password authentication flow
+- [x] RBAC system (4 roles, 10 permissions)
 - [x] Core pages (landing, dashboard, account, settings)
-- [x] Testing setup (Vitest + Playwright)
-- [x] CI/CD pipelines (GitHub Actions)
-- [x] Demo mode (no Supabase required)
-- [x] Deployment to Vercel
+- [x] Testing infrastructure (Vitest + Playwright)
+- [x] CI/CD pipelines (GitHub Actions + Vercel)
+- [x] Demo mode with auto-fallback
+- [x] Demo login button
+- [x] Mobile-responsive layout
 
-**Next Phase: Enhancements**
-- [ ] Supabase anonymous/guest auth integration
-- [ ] Payment processing (Stripe)
-- [ ] Email notifications
-- [ ] Admin dashboard
-- [ ] Advanced RBAC features
+**What's Implemented:**
+- ✅ Email/password authentication
+- ✅ Password reset (via Supabase)
+- ✅ Profile editing (display name)
+- ✅ Role-based UI sections
+- ✅ Permission checking utilities
+- ✅ Database-level RLS enforcement
+- ✅ Session persistence
+- ✅ Error boundaries
+- ✅ Mock Supabase client for demo mode
+
+**Next Phase: Missing Features**
+
+These features are **not yet implemented** (placeholders only):
+
+- [ ] **OAuth Providers** - Google, GitHub, etc. (claimed but not implemented)
+- [ ] **Magic Links** - Passwordless login (claimed but not implemented)
+- [ ] **Admin Dashboard** - User management UI (placeholder section exists)
+- [ ] **Email Notifications** - Transactional emails (placeholder button exists)
+- [ ] **Email Verification** - Account confirmation emails
+- [ ] **Advanced RBAC** - UI for role/permission management
+- [ ] **Payment Processing** - Stripe integration
+- [ ] **Profile Pictures** - Avatar upload
+- [ ] **Anonymous/Guest Auth** - Try before signup
+- [ ] **Comprehensive Tests** - Full test coverage (only examples exist)
 
 See [Implementation Plan](/docs/implementation-plan.md) for detailed roadmap.
 
@@ -323,7 +343,7 @@ See [Implementation Plan](/docs/implementation-plan.md) for detailed roadmap.
 
 **Built with ❤️ by Tyler**
 
-**Status:** 🚧 In Development (MVP Phase)
+**Status:** ✅ MVP Complete - Ready for Enhancement Phase
 **Last Updated:** 2025-11-02
 
 ---

@@ -167,55 +167,68 @@
 
 ---
 
-### Phase 4: Authentication - Supabase + ShadCN Form (10 min)
+### Phase 4: Authentication - Supabase + ShadCN Form ✅ COMPLETE
+
+**Status:** ✅ Implemented (Email/Password Only)
 
 **Tasks:**
-17. Use Supabase's built-in auth methods:
-    - Email/password authentication
-    - Magic links
-    - OAuth providers (optional)
+17. ✅ **IMPLEMENTED:** Supabase's built-in auth methods:
+    - ✅ Email/password authentication
+    - ✅ Password reset (via Supabase built-in)
+    - ❌ Magic links (NOT implemented)
+    - ❌ OAuth providers (NOT implemented)
 
-18. Install form dependencies
+18. ✅ **INSTALLED:** Form dependencies
     ```bash
     npm install react-hook-form @hookform/resolvers zod
     ```
 
-19. Create auth context using Supabase's `onAuthStateChange`
-    - File: `/src/features/auth/context/auth-context.tsx`
+19. ✅ **IMPLEMENTED:** Auth context using Supabase's `onAuthStateChange`
+    - File: `/src/features/auth/context/auth-context.tsx` (133 lines)
     - Hooks: `useAuth()`, `useUser()`, `useSession()`
+    - Session persistence
+    - Auto token refresh
 
-20. Build auth pages from `login-03` block:
-    - Login page
-    - Signup page
-    - Password reset page
+20. ✅ **IMPLEMENTED:** Auth pages from `login-03` block:
+    - ✅ Login page (with demo login button)
+    - ✅ Signup page
+    - ❌ Password reset page (uses Supabase built-in email flow, no custom page)
     - All use ShadCN Form + react-hook-form + Zod
 
-21. Implement protected routes with React Router
+21. ✅ **IMPLEMENTED:** Protected routes with React Router
     - Route guards checking session
     - Redirect to login if not authenticated
+    - ProtectedRoute component
 
 ---
 
-### Phase 5: RBAC - Supabase RLS (10 min)
+### Phase 5: RBAC - Supabase RLS ✅ COMPLETE
+
+**Status:** ✅ Implemented (Basic RBAC, No Management UI)
 
 **Tasks:**
-22. Create permission utilities using Supabase JWT claims
-    - File: `/src/lib/rbac.ts`
-    - Functions: `hasPermission()`, `hasRole()`, `canAccess()`
+22. ✅ **IMPLEMENTED:** Permission utilities using Supabase JWT claims
+    - File: `/src/lib/rbac.ts` (156 lines)
+    - Functions: `hasPermission()`, `hasRole()`, `hasAnyRole()`, `hasAllPermissions()`, etc.
+    - Custom hooks in `/src/hooks/use-rbac.ts` (6 hooks)
+    - In-memory caching for performance
 
-23. Implement route guards with React Router loaders
-    - Check permissions before rendering routes
-    - Display 403 for unauthorized access
+23. ⚠️ **PARTIAL:** Route guards with React Router
+    - ✅ Authentication-based route guards (ProtectedRoute)
+    - ❌ Permission-based route guards (NOT implemented)
+    - ❌ 403 page for unauthorized access (NOT implemented)
 
-24. Add `hasPermission()` helper for conditional UI rendering
-    ```tsx
-    {hasPermission('users.write') && <EditButton />}
-    ```
+24. ✅ **IMPLEMENTED:** `hasPermission()` helper for conditional UI rendering
+    - Used in dashboard for Admin/Moderator sections
+    - Example: `{roles.includes('Admin') && <AdminSection />}`
+    - Works with custom hooks from use-rbac.ts
 
-25. All authorization enforced via Supabase RLS
-    - Database-level security
+25. ✅ **IMPLEMENTED:** Authorization enforced via Supabase RLS
+    - Database-level security with 19 RLS policies
     - No client-side security bypass
     - JWT claims available in RLS policies
+    - Users can only view/edit their own profile
+    - Admins can view all profiles and assign roles
 
 **RLS Policy Examples:**
 ```sql
@@ -239,76 +252,82 @@ USING (
 
 ---
 
-### Phase 6: Assemble Pages from ShadCN Blocks (15 min)
+### Phase 6: Assemble Pages from ShadCN Blocks ✅ COMPLETE
+
+**Status:** ✅ Implemented (Core Pages, Settings are Placeholders)
 
 **Tasks:**
-26. **Landing Page**
-    - Compose from ShadCN hero/feature blocks
-    - CTAs linking to signup
-    - Feature highlights
+26. ✅ **IMPLEMENTED:** Landing Page
+    - File: `/src/features/landing/landing-page.tsx`
+    - Hero section with gradient background
+    - CTAs linking to signup/login
+    - Feature highlights grid
     - Footer with links
 
-27. **Dashboard**
-    - Customize `dashboard-01` block
-    - Blank canvas with permission-based sections
-    - Welcome message with user's name/role
-    - Example commented code for role-based content:
-      ```tsx
-      {/* Example: Show analytics for Admin/Moderator */}
-      {hasPermission('analytics.view') && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Add your analytics here */}
-          </CardContent>
-        </Card>
-      )}
-      ```
-    - Placeholder cards that can be customized
+27. ✅ **IMPLEMENTED:** Dashboard
+    - File: `/src/features/dashboard/dashboard-page.tsx`
+    - Welcome card with user's display name
+    - Shows user's roles and permission count
+    - Role-based sections:
+      - Admin section (shows for Admin role)
+      - Moderator section (shows for Admin/Moderator roles)
+      - User section (shows for all authenticated users)
+    - Placeholder cards with instructions
+    - Ready for customization
 
-28. **Account/Settings Pages**
-    - Use ShadCN form + card components
-    - Profile editing (display_name, avatar)
-    - Email/password management
-    - Notification preferences
-    - Connected accounts (if OAuth enabled)
+28. ⚠️ **PARTIAL:** Account/Settings Pages
+    - ✅ Account page with display name editing (`/src/features/account/account-page.tsx`)
+    - ✅ Email display (read-only)
+    - ⚠️ Settings page exists but is **placeholder only** (`/src/features/settings/settings-page.tsx`)
+      - ❌ Profile picture upload (NOT implemented)
+      - ❌ Email change (NOT implemented)
+      - ❌ Password change UI (NOT implemented)
+      - ❌ Notification preferences (placeholder button only)
+      - ❌ Connected accounts (NOT implemented, no OAuth)
 
-29. **Layout**
-    - Use `sidebar-07` for collapsible navigation
-    - Header from dashboard block
-    - Role-based navigation items:
-      ```tsx
-      {hasRole('Admin') && <SidebarItem href="/admin">Admin Panel</SidebarItem>}
-      ```
-    - Mobile-responsive with Sheet component
+29. ✅ **IMPLEMENTED:** Layout
+    - File: `/src/components/dashboard-layout.tsx` (155 lines)
+    - Collapsible sidebar (mobile: <1024px)
+    - Navigation: Dashboard, Account, Settings
+    - User dropdown menu with:
+      - Account Settings link
+      - Preferences link
+      - Sign Out button
+    - Mobile-responsive with backdrop
+    - Shows user email and first role
 
 ---
 
-### Phase 7: Testing - Vitest 4.0 + Playwright (10 min)
+### Phase 7: Testing - Vitest 4.0 + Playwright ✅ COMPLETE
+
+**Status:** ✅ Infrastructure Complete, ⚠️ Minimal Test Coverage
 
 **Tasks:**
-30. Configure Vitest
+30. ✅ **CONFIGURED:** Vitest
     ```bash
     npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom
     ```
-    - Create `vitest.config.ts`
-    - Add test utils in `/src/lib/test-utils.tsx`
+    - ✅ `vitest.config.ts` created
+    - ✅ Test utils in `/src/lib/test-utils.tsx` (20 lines)
+    - ✅ jsdom environment configured
 
-31. Set up Playwright
+31. ✅ **CONFIGURED:** Playwright
     ```bash
     npm init playwright@latest
     ```
-    - Configure for React app
-    - Set base URL to localhost
+    - ✅ `playwright.config.ts` created
+    - ✅ Configured for React app (localhost:5173)
+    - ✅ Chromium, Firefox, WebKit browsers
 
-32. Write sample auth flow tests
-    - E2E: Login → Dashboard → Logout
-    - Unit: Auth context, permission utilities
-    - Component: Form validation
+32. ⚠️ **MINIMAL:** Sample tests (examples only, low coverage)
+    - ✅ Example unit test: `/src/components/__tests__/button.test.tsx`
+    - ✅ Example RBAC test: `/src/lib/__tests__/rbac.test.ts`
+    - ✅ Example E2E test: `/tests/example.spec.ts`
+    - ❌ Comprehensive auth flow tests (NOT implemented)
+    - ❌ Form validation tests (NOT implemented)
+    - ❌ Component tests for pages (NOT implemented)
 
-33. Add test scripts to `package.json`
+33. ✅ **ADDED:** Test scripts to `package.json`
     ```json
     {
       "scripts": {
@@ -319,6 +338,8 @@ USING (
       }
     }
     ```
+
+**Test Coverage:** ~5% (infrastructure ready, examples provided, but comprehensive suite not implemented)
 
 ---
 
@@ -390,42 +411,49 @@ USING (
 
 ---
 
-### Phase 10: DX & Error Handling (10 min)
+### Phase 10: DX & Error Handling ✅ COMPLETE
+
+**Status:** ✅ Implemented (Basic Infrastructure)
 
 **Tasks:**
-44. Configure Pino logger
+44. ✅ **CONFIGURED:** Pino logger
     ```bash
     npm install pino pino-pretty
     ```
-    - Create logger utility in `/src/lib/logger.ts`
-    - Browser-compatible configuration
-    - Log levels: debug, info, warn, error
+    - ✅ Logger utility in `/src/lib/logger.ts` (10 lines)
+    - ✅ Browser-compatible configuration
+    - ✅ Log levels: debug, info, warn, error
+    - ✅ Used in auth context and RBAC utilities
 
-45. Use ShadCN Toast for user notifications
-    - Success messages
-    - Error messages
-    - Info/warning notifications
-    - Consistent UX across app
+45. ✅ **IMPLEMENTED:** ShadCN Toast for user notifications
+    - ✅ Toast component: `/src/components/ui/toast.tsx`
+    - ✅ Toaster component: `/src/components/ui/toaster.tsx`
+    - ✅ useToast hook: `/src/components/ui/use-toast.ts`
+    - ✅ Success messages (account updates)
+    - ✅ Error messages (auth failures)
+    - ✅ Consistent UX across app
 
-46. Create React Error Boundaries
-    - Catch React errors gracefully
-    - Display user-friendly error UI
-    - Log errors for debugging
-    - File: `/src/components/error-boundary.tsx`
+46. ✅ **IMPLEMENTED:** React Error Boundaries
+    - ✅ File: `/src/components/error-boundary.tsx` (60+ lines)
+    - ✅ Catches React errors gracefully
+    - ✅ Displays user-friendly error UI
+    - ✅ Logs errors for debugging
+    - ✅ Reset button to retry
 
-47. Add optimistic UI helpers
-    - Update UI immediately on user action
-    - Revert if server request fails
-    - Use Supabase realtime for updates
-    - File: `/src/lib/optimistic-ui.ts`
+47. ⚠️ **PARTIAL:** Optimistic UI helpers
+    - ✅ Utility file exists: `/src/lib/optimistic-ui.ts` (70 lines)
+    - ✅ Basic structure for optimistic updates
+    - ❌ NOT fully integrated into UI components
+    - ❌ Supabase realtime NOT used in current implementation
 
-48. Configure ESLint + Prettier
+48. ✅ **CONFIGURED:** ESLint + Prettier
     ```bash
     npm install -D eslint-config-prettier prettier
     ```
-    - ESLint rules for React, TypeScript
-    - Prettier for code formatting
-    - Pre-commit hooks with Husky (optional)
+    - ✅ ESLint rules for React, TypeScript (`.eslintrc.cjs`)
+    - ✅ Prettier for code formatting (`.prettierrc`)
+    - ✅ Prettier ignore file (`.prettierignore`)
+    - ❌ Pre-commit hooks with Husky (NOT implemented)
 
 ### Phase 11: Deployment & Graceful Degradation (COMPLETED)
 
@@ -500,22 +528,67 @@ USING (
 
 ## Key Features Implemented
 
-✅ **Full authentication flow** with Supabase
-✅ **4-tier RBAC** (Admin, Moderator/Editor, User, Guest/Viewer)
-✅ **Demo mode system** with mock Supabase client
-✅ **Graceful degradation** - auto-fallback when services unavailable
-✅ **Optimistic UI patterns** with graceful fallbacks
-✅ **TDD-ready testing setup** (Vitest + Playwright)
-✅ **Feature-based organization** in `/src`
-✅ **ShadCN MCP integration** for component management
+✅ **Email/password authentication** with Supabase (signIn, signUp, signOut, password reset)
+✅ **4-tier RBAC** (Admin, Moderator, User, Guest roles with 10 permissions)
+✅ **Demo mode system** with complete mock Supabase client (278 lines)
+✅ **Graceful degradation** - auto-fallback when Supabase credentials missing
+✅ **Demo login button** - one-click demo access
+✅ **TDD-ready testing infrastructure** (Vitest + Playwright configured, example tests provided)
+✅ **Feature-based organization** in `/src` (auth, dashboard, account, settings, landing)
+✅ **ShadCN UI components** (10+ components: Button, Card, Input, Form, Toast, etc.)
+✅ **Custom RBAC hooks** - 6 hooks for role/permission checking
 ✅ **Pino logging** with error boundaries
-✅ **Zod schema validation** throughout
-✅ **Fully typed with TypeScript**
-✅ **Vercel deployment ready** with comprehensive guides
-✅ **Zero-config quick start** - works without any setup
-✅ **Mobile-responsive** with collapsible sidebar
-✅ **Documentation as Code** in `/docs` (specs and tasks included)
-✅ **CI/CD automation** with GitHub Actions
+✅ **Zod schema validation** on all forms
+✅ **Fully typed with TypeScript** (strict mode)
+✅ **Vercel deployment ready** with comprehensive deployment guides
+✅ **Zero-config quick start** - works without any setup (auto-fallback to demo mode)
+✅ **Mobile-responsive layout** with collapsible sidebar
+✅ **Documentation as Code** in `/docs` (9 docs, 2 session summaries)
+✅ **CI/CD automation** with GitHub Actions (3 workflows: CI, deploy, types)
+✅ **Database schema** with RLS policies (5 tables, 19 RLS policies)
+
+## What's NOT Implemented (Claimed Features)
+
+The following features are mentioned in documentation but **NOT actually implemented**:
+
+### Authentication (Partial)
+- ❌ **OAuth Providers** (Google, GitHub, etc.) - Claimed in README, not implemented
+- ❌ **Magic Links** - Claimed in README, not implemented
+- ❌ **Email Verification** - No account confirmation emails
+- ❌ **Two-Factor Authentication** - Not implemented
+
+### Pages & UI (Partial)
+- ❌ **Admin Dashboard** - Only placeholder section in dashboard, no routes or management UI
+- ❌ **Password Change UI** - No page/form for password changes
+- ❌ **Email Change** - No UI for changing email
+- ❌ **Profile Picture Upload** - No avatar upload functionality
+- ❌ **403 Unauthorized Page** - No dedicated error page
+
+### Email & Notifications
+- ❌ **Email Notifications** - Only placeholder button in settings, no actual email service
+- ❌ **Transactional Emails** - No SendGrid/Mailgun/Resend integration
+- ❌ **Notification Preferences** - UI placeholder only, no backend
+
+### Advanced Features
+- ❌ **Payment Processing** - No Stripe integration (zero code)
+- ❌ **Subscription Management** - Not implemented
+- ❌ **Role/Permission Management UI** - RBAC works, but admins can't assign roles via UI
+- ❌ **Anonymous/Guest Auth** - Not implemented
+- ❌ **User Management** - No listing, editing, or deletion of users
+- ❌ **Analytics Dashboard** - Not implemented
+
+### Testing (Infrastructure Only)
+- ❌ **Comprehensive Test Suite** - Only 3 example tests exist (~5% coverage)
+- ❌ **Auth Flow Tests** - Not implemented
+- ❌ **Form Validation Tests** - Not implemented
+- ❌ **Component Tests** - Minimal coverage
+
+### Developer Experience
+- ❌ **Pre-commit Hooks** - Husky not configured
+- ❌ **Optimistic UI Integration** - Utilities exist but not integrated
+- ❌ **Supabase Realtime** - Not used in current implementation
+
+**Note:** The above features are either listed as "Next Phase" in the roadmap or claimed in feature descriptions but consist of placeholder UI only.
 
 ---
 
