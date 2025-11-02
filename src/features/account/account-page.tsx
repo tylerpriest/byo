@@ -34,7 +34,7 @@ export default function AccountPage() {
     if (error) {
       console.error('Error loading profile:', error)
     } else if (data) {
-      setDisplayName(data.display_name || '')
+      setDisplayName((data as { display_name: string | null }).display_name || '')
     }
 
     setLoading(false)

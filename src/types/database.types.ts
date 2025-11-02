@@ -31,6 +31,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       roles: {
         Row: {
@@ -51,6 +52,7 @@ export interface Database {
           description?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -71,6 +73,7 @@ export interface Database {
           assigned_at?: string
           assigned_by?: string | null
         }
+        Relationships: []
       }
       permissions: {
         Row: {
@@ -97,6 +100,7 @@ export interface Database {
           description?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       role_permissions: {
         Row: {
@@ -111,6 +115,7 @@ export interface Database {
           role_id?: string
           permission_id?: string
         }
+        Relationships: []
       }
     }
     Views: {
@@ -120,6 +125,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }

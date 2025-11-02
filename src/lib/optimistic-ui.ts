@@ -25,15 +25,12 @@ export function useOptimistic<T>() {
   const [isLoading, setIsLoading] = useState(false)
 
   const execute = async (
-    currentValue: T,
-    optimisticValue: T,
+    _currentValue: T,
+    _optimisticValue: T,
     mutationFn: () => Promise<T>,
     options?: OptimisticUpdateOptions<T>
   ): Promise<T> => {
     setIsLoading(true)
-
-    // Optimistically update UI
-    let tempValue = optimisticValue
 
     try {
       // Execute mutation
@@ -46,9 +43,6 @@ export function useOptimistic<T>() {
       setIsLoading(false)
       return result
     } catch (error) {
-      // Revert to original value
-      tempValue = currentValue
-
       logger.error('Optimistic update failed, reverting', { error })
 
       // Error callback
