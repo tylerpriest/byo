@@ -43,7 +43,7 @@ export function useOptimistic<T>() {
       setIsLoading(false)
       return result
     } catch (error) {
-      logger.error('Optimistic update failed, reverting', { error })
+      logger.error({ msg: 'Optimistic update failed, reverting', error })
 
       // Error callback
       options?.onError?.(error as Error)
@@ -76,7 +76,7 @@ export async function optimisticUpdate<T>(
   } catch (error) {
     // Revert to original value on error
     setValue(currentValue)
-    logger.error('Optimistic update failed', { error })
+    logger.error({ msg: 'Optimistic update failed', error })
     throw error
   }
 }

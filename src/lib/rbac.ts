@@ -34,7 +34,7 @@ export async function getUserRoles(userId: string): Promise<Role[]> {
       .eq('user_id', userId)
 
     if (error) {
-      logger.error('Error fetching user roles', { error, userId })
+      logger.error({ msg: 'Error fetching user roles', error, userId })
       return []
     }
 
@@ -47,7 +47,7 @@ export async function getUserRoles(userId: string): Promise<Role[]> {
 
     return roles
   } catch (error) {
-    logger.error('Error in getUserRoles', { error, userId })
+    logger.error({ msg: 'Error in getUserRoles', error, userId })
     return []
   }
 }
@@ -68,7 +68,7 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
       .eq('user_id', userId)
 
     if (error) {
-      logger.error('Error fetching user permissions', { error, userId })
+      logger.error({ msg: 'Error fetching user permissions', error, userId })
       return []
     }
 
@@ -87,7 +87,7 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
 
     return Array.from(permissions)
   } catch (error) {
-    logger.error('Error in getUserPermissions', { error, userId })
+    logger.error({ msg: 'Error in getUserPermissions', error, userId })
     return []
   }
 }

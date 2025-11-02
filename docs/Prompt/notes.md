@@ -46,7 +46,7 @@ DRY principle by using prebuilt components but also by making sure we never buil
 
 Docker for local Supabase or similar?
 
-PNPM
+
 
 What MCP's and CLIs are not installed properly because we need me to login or similar issue 
 

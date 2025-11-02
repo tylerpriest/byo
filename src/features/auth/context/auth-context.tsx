@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
-      logger.info('Auth state changed', { event: _event, userId: session?.user?.id })
+      logger.info({ msg: 'Auth state changed', event: _event, userId: session?.user?.id })
     })
 
     return () => subscription.unsubscribe()
@@ -48,9 +48,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (error) {
-      logger.error('Sign in error', { error })
+      logger.error({ msg: 'Sign in error', error })
     } else {
-      logger.info('User signed in', { email })
+      logger.info({ msg: 'User signed in', email })
     }
 
     return { error }
@@ -68,9 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (error) {
-      logger.error('Sign up error', { error })
+      logger.error({ msg: 'Sign up error', error })
     } else {
-      logger.info('User signed up', { email })
+      logger.info({ msg: 'User signed up', email })
     }
 
     return { error }
@@ -80,9 +80,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signOut()
 
     if (error) {
-      logger.error('Sign out error', { error })
+      logger.error({ msg: 'Sign out error', error })
     } else {
-      logger.info('User signed out')
+      logger.info({ msg: 'User signed out' })
     }
   }
 
@@ -92,9 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (error) {
-      logger.error('Password reset error', { error })
+      logger.error({ msg: 'Password reset error', error })
     } else {
-      logger.info('Password reset email sent', { email })
+      logger.info({ msg: 'Password reset email sent', email })
     }
 
     return { error }
