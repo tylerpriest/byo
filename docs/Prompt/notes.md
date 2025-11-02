@@ -3,8 +3,12 @@ Or create new ones on 1. & 2. below
 
 
 Get task template and createtask, gitcommit / commands from ChemJungle Project
+
 Look at how Lachlan is doing everything with his latest project
-Look at Claude Skills
+
+Look at Claude Skills?
+Plugins?
+Agents?
 
 
 1. Product Management Principles - Specs, Tasks 
@@ -37,3 +41,13 @@ Onboarding Tech Stack Addition
 
 
 DRY principle by using prebuilt components but also by making sure we never build double ourselves in app
+
+
+
+Docker for local Supabase or similar?
+
+PNPM
+
+What MCP's and CLIs are not installed properly because we need me to login or similar issue 
+
+ npx shadcn@latest mcp
