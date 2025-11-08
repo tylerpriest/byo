@@ -3180,6 +3180,958 @@ export function ProductTour({ run, onFinish }: { run: boolean; onFinish: () => v
 
 ---
 
+### Phase 13: Admin Dashboard (NEW - 30 min)
+
+**Purpose:** System administration interface for platform admins to manage users, monitor activity, and control system settings.
+
+**Prerequisites:**
+- Phase 5 (RBAC) completed
+- Platform admin role configured
+
+**Tasks:**
+
+**65. Create admin dashboard route**
+
+File: `/src/features/admin/pages/admin-dashboard.tsx`
+
+```typescript
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/features/auth/context/auth-context'
+import { useEffect, useState } from 'react'
+import { isPlatformAdmin } from '@/lib/platform-roles'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DemoModeToggle } from '../components/demo-mode-toggle'
+import { UserManagementTable } from '../components/user-management-table'
+import { ActivityLog } from '../components/activity-log'
+import { PlatformStats } from '../components/platform-stats'
+
+export function AdminDashboard() {
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    isPlatformAdmin(user.id).then((admin) => {
+      setIsAdmin(admin)
+      setLoading(false)
+      if (!admin) {
+        navigate('/dashboard')
+      }
+    })
+  }, [user, navigate])
+
+  if (loading) return <div>Loading...</div>
+  if (!isAdmin) return null
+
+  return (
+    <div className="container py-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Platform Administration</h1>
+        <DemoModeToggle />
+      </div>
+
+      <PlatformStats />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>User Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <UserManagementTable />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ActivityLog />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+```
+
+**66. Create demo mode toggle component**
+
+File: `/src/features/admin/components/demo-mode-toggle.tsx`
+
+```typescript
+import { useState, useEffect } from 'react'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/features/auth/context/auth-context'
+
+export function DemoModeToggle() {
+  const { user } = useAuth()
+  const [demoMode, setDemoMode] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Get current demo mode status from system settings
+    supabase
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'demo_mode')
+      .single()
+      .then(({ data }) => {
+        setDemoMode(data?.value === 'true')
+        setLoading(false)
+      })
+  }, [])
+
+  const toggleDemoMode = async (enabled: boolean) => {
+    setDemoMode(enabled)
+
+    // Update system setting
+    await supabase
+      .from('system_settings')
+      .upsert({
+        key: 'demo_mode',
+        value: String(enabled),
+        updated_by: user?.id,
+        updated_at: new Date().toISOString()
+      })
+  }
+
+  if (loading) return null
+
+  return (
+    <div className="flex items-center space-x-2">
+      <Switch
+        id="demo-mode"
+        checked={demoMode}
+        onCheckedChange={toggleDemoMode}
+      />
+      <Label htmlFor="demo-mode">
+        Demo Mode {demoMode ? '(Active)' : '(Inactive)'}
+      </Label>
+    </div>
+  )
+}
+```
+
+**67. Create user management table**
+
+File: `/src/features/admin/components/user-management-table.tsx`
+
+```typescript
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+
+interface User {
+  id: string
+  email: string
+  display_name: string
+  roles: string[]
+  created_at: string
+}
+
+export function UserManagementTable() {
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadUsers()
+  }, [])
+
+  const loadUsers = async () => {
+    const { data } = await supabase
+      .from('profiles')
+      .select(`
+        id,
+        display_name,
+        auth_users:id (email, created_at),
+        user_roles (
+          roles (name)
+        )
+      `)
+      .limit(50)
+
+    const formatted = data?.map((u: any) => ({
+      id: u.id,
+      email: u.auth_users?.email || '',
+      display_name: u.display_name || 'Unknown',
+      roles: u.user_roles?.map((ur: any) => ur.roles.name) || [],
+      created_at: u.auth_users?.created_at || '',
+    })) || []
+
+    setUsers(formatted)
+    setLoading(false)
+  }
+
+  if (loading) return <div>Loading users...</div>
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>User</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Roles</TableHead>
+          <TableHead>Joined</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {users.map((user) => (
+          <TableRow key={user.id}>
+            <TableCell className="font-medium">{user.display_name}</TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>
+              <div className="flex gap-1">
+                {user.roles.map((role) => (
+                  <Badge key={role} variant="secondary">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            </TableCell>
+            <TableCell>
+              {new Date(user.created_at).toLocaleDateString()}
+            </TableCell>
+            <TableCell>
+              <Button variant="ghost" size="sm">
+                View
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+```
+
+**68. Create platform stats component**
+
+File: `/src/features/admin/components/platform-stats.tsx`
+
+```typescript
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+
+export function PlatformStats() {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    totalOrganizations: 0,
+    totalRevenue: 0,
+  })
+
+  useEffect(() => {
+    loadStats()
+  }, [])
+
+  const loadStats = async () => {
+    // Get total users
+    const { count: totalUsers } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+
+    // Get active users (logged in last 7 days)
+    const { count: activeUsers } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gte('last_login_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+
+    setStats({
+      totalUsers: totalUsers || 0,
+      activeUsers: activeUsers || 0,
+      totalOrganizations: 0, // Will be populated in Phase 14
+      totalRevenue: 0, // Future: integrate with billing
+    })
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Total Users
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.totalUsers}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Active Users (7d)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.activeUsers}</div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            Organizations
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">{stats.totalOrganizations}</div>
+          <p className="text-xs text-muted-foreground">Phase 14</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            MRR
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">${stats.totalRevenue}</div>
+          <p className="text-xs text-muted-foreground">Future</p>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+**69. Add admin route protection**
+
+File: `/src/features/admin/lib/admin-guard.tsx`
+
+```typescript
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '@/features/auth/context/auth-context'
+import { useState, useEffect } from 'react'
+import { isPlatformAdmin } from '@/lib/platform-roles'
+
+export function AdminGuard({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false)
+      return
+    }
+
+    isPlatformAdmin(user.id).then(setIsAdmin)
+  }, [user])
+
+  if (isAdmin === null) return <div>Loading...</div>
+  if (!isAdmin) return <Navigate to="/dashboard" replace />
+
+  return <>{children}</>
+}
+```
+
+**70. Add admin routes to router**
+
+File: `/src/App.tsx` (update routes)
+
+```typescript
+import { AdminGuard } from '@/features/admin/lib/admin-guard'
+import { AdminDashboard } from '@/features/admin/pages/admin-dashboard'
+
+// Add to routes:
+<Route
+  path="/admin"
+  element={
+    <AdminGuard>
+      <AdminDashboard />
+    </AdminGuard>
+  }
+/>
+```
+
+---
+
+### Phase 14: Multi-Tenant Organizations (NEW - 45 min)
+
+**Purpose:** Enable B2B2C model where tutors create workspaces and invite students.
+
+**Use Case:** Tutoring platform - tutors sign up, create workspaces, invite students
+
+**Architecture:** Row-Level Multi-Tenancy (Type 1) + Single-Instance Deployment
+
+**Prerequisites:**
+- Phase 3 (Database) completed
+- Phase 5 (RBAC) completed
+
+**Tasks:**
+
+**71. Create organizations migration**
+
+File: `/supabase/migrations/20250108000000_organizations.sql`
+
+```sql
+-- Organizations (Tutor Workspaces)
+CREATE TABLE IF NOT EXISTS organizations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  avatar_url TEXT,
+  tutor_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  plan TEXT DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'premium')),
+  max_students INTEGER DEFAULT 10,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Organization Members (Students + Assistants)
+CREATE TABLE IF NOT EXISTS organization_members (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('tutor', 'assistant', 'student')),
+  invited_by UUID REFERENCES auth.users(id),
+  joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  last_active_at TIMESTAMP WITH TIME ZONE,
+  metadata JSONB,
+  UNIQUE(organization_id, user_id)
+);
+
+-- Invitations
+CREATE TABLE IF NOT EXISTS invitations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  role TEXT NOT NULL CHECK (role IN ('assistant', 'student')),
+  token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
+  invited_by UUID REFERENCES auth.users(id),
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW() + INTERVAL '7 days',
+  accepted_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  metadata JSONB
+);
+
+-- Organization Settings
+CREATE TABLE IF NOT EXISTS organization_settings (
+  organization_id UUID PRIMARY KEY REFERENCES organizations(id) ON DELETE CASCADE,
+  allow_student_invites BOOLEAN DEFAULT false,
+  require_approval BOOLEAN DEFAULT false,
+  timezone TEXT DEFAULT 'UTC',
+  locale TEXT DEFAULT 'en',
+  branding JSONB,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- System Roles (Platform Admin/Dev/Support)
+CREATE TABLE IF NOT EXISTS system_roles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('platform_admin', 'platform_dev', 'platform_support')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, role)
+);
+
+-- Enable RLS
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organization_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE organization_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE system_roles ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies: Organizations
+CREATE POLICY "Platform admins see all organizations"
+ON organizations FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM system_roles
+    WHERE user_id = auth.uid()
+    AND role = 'platform_admin'
+  )
+  OR tutor_id = auth.uid()
+);
+
+CREATE POLICY "Members can view their organizations"
+ON organizations FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM organization_members
+    WHERE organization_id = organizations.id
+    AND user_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Tutors can manage their organizations"
+ON organizations FOR ALL
+USING (tutor_id = auth.uid());
+
+-- RLS Policies: Organization Members
+CREATE POLICY "Platform admins see all members"
+ON organization_members FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM system_roles
+    WHERE user_id = auth.uid()
+    AND role IN ('platform_admin', 'platform_support')
+  )
+);
+
+CREATE POLICY "Tutors can manage members in their org"
+ON organization_members FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM organizations
+    WHERE id = organization_members.organization_id
+    AND tutor_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Members can view other members in same org"
+ON organization_members FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM organization_members om
+    WHERE om.organization_id = organization_members.organization_id
+    AND om.user_id = auth.uid()
+  )
+);
+
+-- RLS Policies: Invitations
+CREATE POLICY "Tutors can manage invitations for their org"
+ON invitations FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM organizations
+    WHERE id = invitations.organization_id
+    AND tutor_id = auth.uid()
+  )
+);
+
+CREATE POLICY "Anyone can view invitation by token"
+ON invitations FOR SELECT
+USING (token IS NOT NULL);
+
+-- RLS Policies: System Roles
+CREATE POLICY "Users can view their own system roles"
+ON system_roles FOR SELECT
+USING (user_id = auth.uid());
+
+CREATE POLICY "Platform admins can manage system roles"
+ON system_roles FOR ALL
+USING (
+  EXISTS (
+    SELECT 1 FROM system_roles
+    WHERE user_id = auth.uid()
+    AND role = 'platform_admin'
+  )
+);
+
+-- Auto-create organization on tutor signup
+CREATE OR REPLACE FUNCTION public.handle_tutor_signup()
+RETURNS TRIGGER AS $$
+DECLARE
+  user_role TEXT;
+BEGIN
+  -- Get user's role from metadata
+  user_role := NEW.raw_user_meta_data->>'role';
+
+  -- If tutor, create organization
+  IF user_role = 'tutor' THEN
+    INSERT INTO public.organizations (name, slug, tutor_id)
+    VALUES (
+      COALESCE(NEW.raw_user_meta_data->>'organization_name', split_part(NEW.email, '@', 1) || '''s Workspace'),
+      NEW.id::text,
+      NEW.id
+    );
+
+    -- Add tutor as organization member
+    INSERT INTO public.organization_members (organization_id, user_id, role, invited_by)
+    SELECT id, NEW.id, 'tutor', NEW.id
+    FROM public.organizations
+    WHERE tutor_id = NEW.id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger for auto-creating organization
+DROP TRIGGER IF EXISTS on_tutor_signup ON auth.users;
+CREATE TRIGGER on_tutor_signup
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_tutor_signup();
+
+-- Update updated_at trigger for organizations
+DROP TRIGGER IF EXISTS on_organization_updated ON organizations;
+CREATE TRIGGER on_organization_updated
+  BEFORE UPDATE ON organizations
+  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+```
+
+**72. Create invitation utilities**
+
+File: `/src/features/organizations/lib/invitations.ts`
+
+```typescript
+import { supabase } from '@/lib/supabase'
+
+export async function createInvitation(
+  organizationId: string,
+  email: string,
+  role: 'student' | 'assistant',
+  metadata?: Record<string, any>
+) {
+  const { data: user } = await supabase.auth.getUser()
+
+  const { data, error } = await supabase
+    .from('invitations')
+    .insert({
+      organization_id: organizationId,
+      email,
+      role,
+      invited_by: user?.user?.id,
+      metadata,
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function getInvitation(token: string) {
+  const { data, error } = await supabase
+    .from('invitations')
+    .select('*, organizations(*)')
+    .eq('token', token)
+    .is('accepted_at', null)
+    .gte('expires_at', new Date().toISOString())
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function acceptInvitation(token: string, userId: string) {
+  // Get invitation
+  const invitation = await getInvitation(token)
+
+  // Add user to organization
+  const { error: memberError } = await supabase
+    .from('organization_members')
+    .insert({
+      organization_id: invitation.organization_id,
+      user_id: userId,
+      role: invitation.role,
+      invited_by: invitation.invited_by,
+    })
+
+  if (memberError) throw memberError
+
+  // Mark invitation accepted
+  const { error: inviteError } = await supabase
+    .from('invitations')
+    .update({ accepted_at: new Date().toISOString() })
+    .eq('token', token)
+
+  if (inviteError) throw inviteError
+
+  return invitation
+}
+```
+
+**73. Create invite student modal**
+
+File: `/src/features/organizations/components/invite-student-modal.tsx`
+
+```typescript
+import { useState } from 'react'
+import { createInvitation } from '../lib/invitations'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useToast } from '@/hooks/use-toast'
+
+export function InviteStudentModal({ organizationId }: { organizationId: string }) {
+  const [open, setOpen] = useState(false)
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+
+  const handleInvite = async () => {
+    setLoading(true)
+    try {
+      const invitation = await createInvitation(organizationId, email, 'student')
+
+      // In production, send email here
+      const inviteUrl = `${window.location.origin}/accept-invite?token=${invitation.token}`
+
+      toast({
+        title: 'Invitation sent!',
+        description: `Invitation link: ${inviteUrl}`,
+      })
+
+      setEmail('')
+      setOpen(false)
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>Invite Student</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite Student</DialogTitle>
+          <DialogDescription>
+            Send an invitation to a student to join your workspace
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="email">Email Address</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="student@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <Button onClick={handleInvite} disabled={loading || !email}>
+            {loading ? 'Sending...' : 'Send Invitation'}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+```
+
+**74. Create accept invitation page**
+
+File: `/src/features/organizations/pages/accept-invite.tsx`
+
+```typescript
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { getInvitation, acceptInvitation } from '../lib/invitations'
+import { useAuth } from '@/features/auth/context/auth-context'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+export function AcceptInvitePage() {
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token')
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [invitation, setInvitation] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!token) {
+      setError('Invalid invitation link')
+      setLoading(false)
+      return
+    }
+
+    getInvitation(token)
+      .then(setInvitation)
+      .catch(() => setError('Invitation not found or expired'))
+      .finally(() => setLoading(false))
+  }, [token])
+
+  const handleAccept = async () => {
+    if (!user || !token) return
+
+    try {
+      await acceptInvitation(token, user.id)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  if (loading) return <div>Loading invitation...</div>
+  if (error) return <div className="text-red-500">{error}</div>
+  if (!invitation) return <div>Invitation not found</div>
+
+  return (
+    <div className="container max-w-md py-12">
+      <Card>
+        <CardHeader>
+          <CardTitle>You've been invited!</CardTitle>
+          <CardDescription>
+            {invitation.organizations.name} has invited you to join as a{' '}
+            {invitation.role}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {!user ? (
+            <div>
+              <p className="mb-4">Please sign up or log in to accept this invitation</p>
+              <div className="space-y-2">
+                <Button onClick={() => navigate('/signup')} className="w-full">
+                  Sign Up
+                </Button>
+                <Button
+                  onClick={() => navigate('/login')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Log In
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button onClick={handleAccept} className="w-full">
+              Accept Invitation
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+```
+
+**75. Create organization context provider**
+
+File: `/src/features/organizations/context/organization-context.tsx`
+
+```typescript
+import { createContext, useContext, useState, useEffect } from 'react'
+import { useAuth } from '@/features/auth/context/auth-context'
+import { supabase } from '@/lib/supabase'
+
+interface Organization {
+  id: string
+  name: string
+  slug: string
+  role: string
+}
+
+interface OrganizationContextType {
+  currentOrganization: Organization | null
+  organizations: Organization[]
+  switchOrganization: (orgId: string) => void
+  loading: boolean
+}
+
+const OrganizationContext = createContext<OrganizationContextType | undefined>(undefined)
+
+export function OrganizationProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+  const [currentOrganization, setCurrentOrganization] = useState<Organization | null>(null)
+  const [organizations, setOrganizations] = useState<Organization[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) {
+      setOrganizations([])
+      setCurrentOrganization(null)
+      setLoading(false)
+      return
+    }
+
+    loadOrganizations()
+  }, [user])
+
+  const loadOrganizations = async () => {
+    const { data } = await supabase
+      .from('organization_members')
+      .select('organization_id, role, organizations(id, name, slug)')
+      .eq('user_id', user!.id)
+
+    const orgs = data?.map((om: any) => ({
+      id: om.organizations.id,
+      name: om.organizations.name,
+      slug: om.organizations.slug,
+      role: om.role,
+    })) || []
+
+    setOrganizations(orgs)
+
+    // Set current to first org
+    if (orgs.length > 0) {
+      setCurrentOrganization(orgs[0])
+    }
+
+    setLoading(false)
+  }
+
+  const switchOrganization = (orgId: string) => {
+    const org = organizations.find(o => o.id === orgId)
+    if (org) {
+      setCurrentOrganization(org)
+    }
+  }
+
+  return (
+    <OrganizationContext.Provider
+      value={{ currentOrganization, organizations, switchOrganization, loading }}
+    >
+      {children}
+    </OrganizationContext.Provider>
+  )
+}
+
+export function useOrganization() {
+  const context = useContext(OrganizationContext)
+  if (!context) {
+    throw new Error('useOrganization must be used within OrganizationProvider')
+  }
+  return context
+}
+```
+
+**76. Add organization routes**
+
+File: `/src/App.tsx` (update)
+
+```typescript
+import { AcceptInvitePage } from '@/features/organizations/pages/accept-invite'
+
+// Add route:
+<Route path="/accept-invite" element={<AcceptInvitePage />} />
+```
+
+---
+
 ## Summary of V3 Changes
 
 ### Phase 0 (NEW)
@@ -3220,6 +4172,24 @@ export function ProductTour({ run, onFinish }: { run: boolean; onFinish: () => v
 - **Onboarding system**
 - Role-based flows
 - Interactive tour
+
+### Phase 13 (NEW)
+- **Admin Dashboard**
+- Platform admin interface
+- User management table
+- Demo mode toggle
+- Platform stats
+- Admin route protection
+
+### Phase 14 (NEW)
+- **Multi-Tenant Organizations**
+- Row-level tenancy (Type 1)
+- Organizations table
+- Invitation system
+- Organization members
+- Platform vs organization roles separation
+- Complete RLS policies
+- Auto-create workspace on tutor signup
 
 ---
 
