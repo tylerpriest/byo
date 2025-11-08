@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Home, Settings, User, LogOut, Menu } from 'lucide-react'
 import { useAuth } from '@/features/auth/context/auth-context'
 import { useRoles } from '@/hooks/use-rbac'
+import { OrganizationSwitcher } from '@/features/organizations'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -69,6 +70,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <Link to="/" className="flex items-center space-x-2">
               <h1 className="text-xl font-bold">BYO</h1>
             </Link>
+          </div>
+
+          {/* Organization Switcher */}
+          <div className="border-b px-3 py-3">
+            <OrganizationSwitcher />
           </div>
 
           {/* Navigation */}
