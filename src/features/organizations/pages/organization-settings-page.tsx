@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import {
   Table,
   TableBody,
@@ -58,13 +57,6 @@ const roleIcons = {
   admin: Shield,
   member: UserIcon,
   viewer: Eye,
-}
-
-const roleColors = {
-  owner: 'bg-yellow-500',
-  admin: 'bg-blue-500',
-  member: 'bg-green-500',
-  viewer: 'bg-gray-500',
 }
 
 export default function OrganizationSettingsPage() {
@@ -334,7 +326,7 @@ export default function OrganizationSettingsPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="invite-role">Role</Label>
-                      <Select value={inviteRole} onValueChange={(value) => setInviteRole(value as OrganizationRole)}>
+                      <Select value={inviteRole} onValueChange={(value: string) => setInviteRole(value as OrganizationRole)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -406,7 +398,7 @@ export default function OrganizationSettingsPage() {
                         {isAdmin && !isCurrentUser ? (
                           <Select
                             value={member.role}
-                            onValueChange={(value) => handleUpdateMemberRole(member.id, value as OrganizationRole)}
+                            onValueChange={(value: string) => handleUpdateMemberRole(member.id, value as OrganizationRole)}
                           >
                             <SelectTrigger className="w-[140px]">
                               <div className="flex items-center gap-2">

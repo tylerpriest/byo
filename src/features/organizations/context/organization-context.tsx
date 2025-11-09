@@ -6,7 +6,6 @@ import type { Database } from '@/types/database.types'
 
 type Organization = Database['public']['Tables']['organizations']['Row']
 type OrganizationMember = Database['public']['Tables']['organization_members']['Row']
-type OrganizationInvitation = Database['public']['Tables']['organization_invitations']['Row']
 type OrganizationRole = Database['public']['Enums']['organization_role']
 
 interface OrganizationWithMembership extends Organization {
@@ -70,8 +69,8 @@ export function OrganizationProvider({ children }: { children: React.ReactNode }
 
       // Transform data to include membership info
       const orgsWithMembership: OrganizationWithMembership[] = (memberships || [])
-        .filter(m => m.organization)
-        .map(m => ({
+        .filter((m: any) => m.organization)
+        .map((m: any) => ({
           ...(m.organization as Organization),
           membership: {
             id: m.id,

@@ -224,14 +224,14 @@ export async function getUserOrganizations(
       return []
     }
 
-    const orgs = data.map(d => ({
+    const orgs = data.map((d: any) => ({
       organizationId: d.organization_id,
       role: d.role as OrganizationRole,
     }))
 
     // Update cache
     const orgMap = new Map<string, OrganizationRole>()
-    orgs.forEach(o => orgMap.set(o.organizationId, o.role))
+    orgs.forEach((o: any) => orgMap.set(o.organizationId, o.role))
     organizationRolesCache.set(userId, orgMap)
 
     return orgs
