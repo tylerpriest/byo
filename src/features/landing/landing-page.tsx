@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/features/auth/context/auth-context'
+import { WhatsNewBanner } from '@/components/whats-new-banner'
 
 export default function LandingPage() {
   const { user } = useAuth()
@@ -32,6 +33,9 @@ export default function LandingPage() {
           </nav>
         </div>
       </header>
+
+      {/* What's New Banner */}
+      <WhatsNewBanner />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center">
