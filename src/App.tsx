@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '@/features/auth/context/auth-context'
-import { OrganizationProvider } from '@/features/organizations'
+import { OrganizationProvider, OrganizationSettingsPage } from '@/features/organizations'
 import { Toaster } from '@/components/ui/toaster'
 import { DemoModeBanner } from '@/components/demo-mode-banner'
 import LandingPage from '@/features/landing/landing-page'
@@ -41,6 +41,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/organization"
+            element={
+              <ProtectedRoute>
+                <OrganizationSettingsPage />
               </ProtectedRoute>
             }
           />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Settings, User, LogOut, Menu } from 'lucide-react'
+import { Home, Settings, User, LogOut, Menu, Building2 } from 'lucide-react'
 import { useAuth } from '@/features/auth/context/auth-context'
 import { useRoles } from '@/hooks/use-rbac'
 import { OrganizationSwitcher } from '@/features/organizations'
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useState } from 'react'
 
@@ -34,6 +35,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Organization', href: '/organization', icon: Building2, isNew: true },
     { name: 'Account', href: '/account', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
@@ -83,15 +85,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   isActive(item.href)
                     ? 'bg-secondary text-secondary-foreground'
                     : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
                 }`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <item.icon className="h-5 w-5" />
-                {item.name}
+                <div className="flex items-center gap-3">
+                  <item.icon className="h-5 w-5" />
+                  {item.name}
+                </div>
+                {item.isNew && (
+                  <Badge variant="default" className="h-5 text-xs bg-gradient-to-r from-blue-500 to-purple-500">
+                    New
+                  </Badge>
+                )}
               </Link>
             ))}
           </nav>

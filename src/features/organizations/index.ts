@@ -9,6 +9,12 @@ export {
 // Components
 export { OrganizationSwitcher } from './components/organization-switcher'
 
+// Pages
+export { default as OrganizationSettingsPage } from './pages/organization-settings-page'
+
+// Hooks
+export { useOrganizationMembers } from './hooks/use-organization-members'
+
 // Re-export types
 export type { Database } from '@/types/database.types'
 export type OrganizationRole = Database['public']['Enums']['organization_role']
