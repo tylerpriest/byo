@@ -16,7 +16,7 @@ export function DemoModeToggle() {
       .select('value')
       .eq('key', 'demo_mode')
       .single()
-      .then(({ data }) => {
+      .then(({ data }: { data: { value: string } | null }) => {
         setDemoMode(data?.value === 'true')
         setLoading(false)
       })

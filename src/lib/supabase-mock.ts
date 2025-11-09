@@ -34,7 +34,14 @@ const DEMO_SESSION: Session = {
 }
 
 // Mock profiles table data
-const DEMO_PROFILES = new Map([
+const DEMO_PROFILES = new Map<string, {
+  id: string
+  display_name: string
+  avatar_url: string | null
+  created_at: string
+  updated_at: string
+  last_login_at?: string
+}>([
   [
     'demo-user-123',
     {
@@ -43,6 +50,7 @@ const DEMO_PROFILES = new Map([
       avatar_url: null,
       created_at: '2024-01-01T00:00:00Z',
       updated_at: '2024-01-01T00:00:00Z',
+      last_login_at: new Date().toISOString(),
     },
   ],
 ])
@@ -133,7 +141,18 @@ const DEMO_ORGANIZATION_MEMBERS = [
 ]
 
 // Mock invitations
-const DEMO_INVITATIONS = [
+const DEMO_INVITATIONS: Array<{
+  id: string
+  organization_id: string
+  email: string
+  role: string
+  token: string
+  invited_by: string
+  expires_at: string
+  accepted_at: string | null
+  created_at: string
+  [key: string]: any
+}> = [
   {
     id: 'invite-1',
     organization_id: 'org-1',
@@ -274,7 +293,7 @@ export const createMockSupabaseClient = () => {
     from: (table: string) => {
       const queryBuilder: any = {
         // SELECT
-        select: (columns = '*', options?: { count?: string; head?: boolean }) => {
+        select: (_columns = '*', options?: { count?: string; head?: boolean }) => {
           // Handle count queries
           if (options?.count === 'exact' && options?.head) {
             return {
@@ -368,9 +387,9 @@ export const createMockSupabaseClient = () => {
                     },
                   }
                 },
-                is: (column2: string, value2: unknown) => {
+                is: (_column2: string, value2: unknown) => {
                   return {
-                    gte: (column3: string, value3: string) => ({
+                    gte: (_column3: string, value3: string) => ({
                       single: async () => {
                         if (table === 'invitations' && column === 'token') {
                           const invitation = DEMO_INVITATIONS.find(i => i.token === value)
@@ -383,7 +402,7 @@ export const createMockSupabaseClient = () => {
                     }),
                   }
                 },
-                gte: (column2: string, value2: string) => ({
+                gte: (_column2: string, value2: string) => ({
                   then: async (resolve: (value: unknown) => void) => {
                     if (table === 'invitations') {
                       const filtered = DEMO_INVITATIONS.filter(i => i.organization_id === value && i.expires_at >= value2)
@@ -515,7 +534,7 @@ export const createMockSupabaseClient = () => {
                     ...(data as Record<string, unknown>),
                     token: `demo-token-${Math.random().toString(36).substr(2, 9)}`,
                     created_at: new Date().toISOString(),
-                  }
+                  } as any
                   DEMO_INVITATIONS.push(newInvite)
                   return { data: newInvite, error: null }
                 }

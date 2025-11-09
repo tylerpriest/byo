@@ -64,10 +64,10 @@ export async function getPlatformRoles(userId: string): Promise<PlatformRole[]> 
     .select('role')
     .eq('user_id', userId)
 
-  return (data?.map(r => r.role as PlatformRole) ?? [])
+  return (data?.map((r: { role: string }) => r.role as PlatformRole) ?? [])
 }
 
-export async function assignPlatformRole(userId: string, role: PlatformRole, assignedBy: string): Promise<void> {
+export async function assignPlatformRole(userId: string, role: PlatformRole): Promise<void> {
   const { error } = await supabase
     .from('system_roles')
     .insert({

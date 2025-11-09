@@ -49,9 +49,9 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
 
     // Set current to first org or maintain current selection
     if (orgs.length > 0) {
-      if (currentOrganization && orgs.find(o => o.id === currentOrganization.id)) {
+      if (currentOrganization && orgs.find((o: Organization) => o.id === currentOrganization.id)) {
         // Keep current selection if still valid
-        const updated = orgs.find(o => o.id === currentOrganization.id)
+        const updated = orgs.find((o: Organization) => o.id === currentOrganization.id)
         if (updated) setCurrentOrganization(updated)
       } else {
         // Otherwise set to first org
@@ -69,7 +69,7 @@ export function OrganizationProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   const switchOrganization = (orgId: string) => {
-    const org = organizations.find(o => o.id === orgId)
+    const org = organizations.find((o: Organization) => o.id === orgId)
     if (org) {
       setCurrentOrganization(org)
     }

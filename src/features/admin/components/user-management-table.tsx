@@ -41,7 +41,7 @@ export function UserManagementTable() {
 
     // Get auth data for each profile
     const usersWithRoles = await Promise.all(
-      profiles.map(async (profile) => {
+      profiles.map(async (profile: { id: string; display_name: string | null; created_at: string }) => {
         // Get email from auth.users (via RPC or admin API if available)
         // For now, we'll just use a placeholder
         const email = `user-${profile.id.substring(0, 8)}@example.com`
