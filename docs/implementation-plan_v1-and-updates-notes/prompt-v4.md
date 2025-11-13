@@ -1,6 +1,6 @@
 # BYO (Build Your Own) - SaaS Boilerplate Template v4
 
-**Version:** 4.01
+**Version:** 4.02
 **Date:** 2025-11-13
 **Purpose:** Production-ready multi-tenant SaaS starter template
 
@@ -68,12 +68,26 @@
 - **Supabase Project** - Production database
 
 ### MCP Ecosystem (Model Context Protocol)
-**5 Mandatory MCPs for AI-assisted development:**
+**5 MCPs for AI-assisted development:**
 1. **GitHub MCP** - PR/issue management, automation
+   - https://github.com/github/github-mcp-server
 2. **Vercel MCP** - Deployment automation, preview URLs
+   - https://vercel.com/docs/mcp/vercel-mcp
 3. **Supabase MCP** - Database operations, migrations
+   - https://supabase.com/docs/guides/getting-started/mcp
+   - https://github.com/supabase-community/supabase-mcp
 4. **ShadCN MCP** - Component generation and management
+   - https://ui.shadcn.com/docs/mcp
 5. **Playwright MCP** - E2E testing automation
+   - https://github.com/microsoft/playwright-mcp
+
+### CLI Tools
+**Official command-line interfaces for the tech stack:**
+- **Supabase CLI** - https://supabase.com/docs/guides/local-development/cli/getting-started
+- **Vercel CLI** - https://vercel.com/docs/cli
+- **shadcn/ui CLI** - https://ui.shadcn.com/docs/cli
+- **Playwright CLI** - https://playwright.dev/docs/intro
+- **Vitest CLI** - https://vitest.dev/guide/
 
 ### Version Notes
 - **All versions listed are latest stable releases** as of template creation date
@@ -245,12 +259,17 @@
 ```
 
 ### Documentation Rules
-- **CLAUDE.md in root** - AI assistant context (ONLY doc in root)
-- **Never docs in root** unless absolutely required (99% no)
+- **Allowed in root (5 files only):**
+  1. `README.md` - Project overview and quick start
+  2. `CLAUDE.md` - AI assistant context
+  3. `CONTRIBUTING.md` - Contribution guidelines
+  4. `CHANGELOG.md` - Version history and release notes
+  5. `LICENSE` - Project license
+- **All other docs go in `/docs/`** - No exceptions
 - **Before creating ANY document:**
   1. Can I update an existing doc? → Update, don't create
   2. Is this SSOT? → Make it canonical
-  3. Belongs in root? → 99% no, goes in `/docs/`
+  3. Belongs in root? → Check the 5 allowed files list
   4. What's the lifecycle? → Place in appropriate subdirectory
 - **Keep docs clean and organized** - Easy navigation, searchable
 
@@ -500,6 +519,25 @@ Give this prompt to Claude Code in plan mode. Claude will:
 5. Configure CI/CD
 6. Deploy to Vercel
 
+### Implementation Tracking
 Let Claude Code decide the implementation phases and order based on dependencies and best practices.
+
+The project uses a phased implementation approach with status tracking:
+
+**Phase States:**
+1. **📋 Not Started** - Phase has not begun
+2. **🔄 In Progress** - Actively working on phase tasks
+3. **✅ Implementation Complete** - All tasks finished, awaiting validation
+4. **🎯 Tested & Validated** - All success criteria met, phase complete
+
+**Implementation Plan Location:** `/docs/implementation-plan.md`
+
+The implementation plan contains:
+- Master status tracking table at the top (single source of truth)
+- Detailed tasks, dependencies, and success criteria for each phase
+- Testing requirements and deliverables
+- Timeline estimates and human review points
+
+**Update the status table** in the implementation plan as you progress through phases. Add notes for blockers, decisions, or important context in the Notes column.
 
 **This is a template.** Customize the business logic in the dashboard and build your unique SaaS product on this solid foundation.
